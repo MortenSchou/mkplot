@@ -112,3 +112,5 @@ class Plot():
         # funny mode
         if options['xkcd']:
             plt.xkcd()
+
+        plt.title(options['title'], fontsize=35)

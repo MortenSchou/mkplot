@@ -32,7 +32,8 @@ def parse_options():
     try:
         opts, args = getopt.getopt(sys.argv[1:],
                                    'a:b:c:f:hj:k:lp:r:t:',
-                                   ['alpha=',
+                                   ['title=',
+                                    'alpha=',
                                     'backend=',
                                     'config=',
                                     'font=',
@@ -85,7 +86,9 @@ def parse_options():
 
     # parsing command-line options
     for opt, arg in opts:
-        if opt in ('-a', '--alpha'):
+        if opt == '--title':
+            options['title'] = str(arg)
+        elif opt in ('-a', '--alpha'):
             options['alpha'] = float(arg)
         elif opt in ('-b', '--backend'):
             options['backend'] = str(arg)
@@ -170,6 +173,7 @@ def usage():
 
     print 'Usage: ' + os.path.basename(sys.argv[0]) + ' [options] stat-files'
     print 'Options:'
+    print '        --title=<string>                Title to diagram (default="")'
     print '        -a, --alpha=<float>             Alpha value (only for scatter plots)'
     print '                                        Available values: [0 .. 1] (default = 0.3)'
     print '        -b, --backend=<string>          Backend to use'

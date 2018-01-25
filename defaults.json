@@ -41,6 +41,7 @@
     },
     "settings":
     {
+        "title": "",
         "alpha": 0.3,
         "backend": "pdf",
         "font": "times",
