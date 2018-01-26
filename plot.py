@@ -77,6 +77,7 @@ class Plot():
 
         plt.rc('text', usetex=options['usetex'])
         plt.rc('font', **self.f_props)
+        plt.rcParams.update({'axes.labelsize': '35', 'xtick.major.pad':10})
 
         # figure properties
         nof_subplots = 1
