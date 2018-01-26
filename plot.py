@@ -93,6 +93,8 @@ class Plot():
             fig_width *= 1.2 if not coeff else float(coeff)  # default coefficient is 1.2
 
         fig_size = [fig_width * 2.5, fig_height * 2.5]
+        # size used for figures in TACAS 2018
+        # fig_size = [fig_width * 3.75, fig_height * 2.5]
 
         params = {'backend': 'pdf', 'text.usetex': options['usetex'], 'figure.figsize': fig_size}
 

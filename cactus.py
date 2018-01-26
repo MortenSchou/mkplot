@@ -63,8 +63,9 @@ class Cactus(Plot, object):
         # axes labels
         if self.x_label:
             plt.xlabel(self.x_label)
-        else:
-            plt.xlabel('instances')
+        # removing xlabel in cactus
+        # else:
+        #     plt.xlabel('instances')
 
         if self.y_label:
             plt.ylabel(self.y_label)
