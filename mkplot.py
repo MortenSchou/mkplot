@@ -84,6 +84,7 @@ def parse_options():
         options = json.load(fp)['settings']
         options['def_path'] = def_path
 
+    options['title'] = ""
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
