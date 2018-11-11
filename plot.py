@@ -34,6 +34,7 @@ class Plot():
         self.transparent = options['transparent']
 
         self.timeout = options['timeout']
+        self.tol = options['tol']
         self.t_label = options['t_label']
         self.tlb_loc = options['tlb_loc']
 

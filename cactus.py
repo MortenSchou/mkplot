@@ -67,7 +67,7 @@ class Cactus(Plot, object):
         # else:
         #     plt.xlabel('instances')
 
-        if self.y_label:
+        if self.y_label or self.y_label == "":
             plt.ylabel(self.y_label)
         else:
             plt.ylabel('CPU time (s)')

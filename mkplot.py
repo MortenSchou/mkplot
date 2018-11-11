@@ -54,6 +54,7 @@ def parse_options():
                                     'save-to=',
                                     'shape=',
                                     'timeout=',
+                                    'tol=',
                                     'tlabel=',
                                     'tol-loc=',
                                     'transparent',
@@ -85,6 +86,7 @@ def parse_options():
         options['def_path'] = def_path
 
     options['title'] = ""
+    options['tol'] = False
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
@@ -132,6 +134,8 @@ def parse_options():
             options['shape'] = str(arg)
         elif opt in ('-t', '--timeout'):
             options['timeout'] = float(arg)
+        elif opt == '--tol':
+            options['tol'] = True
         elif opt == '--tlabel':
             options['t_label'] = str(arg)
         elif opt == '--tol-loc':
@@ -211,6 +215,7 @@ def usage():
     print '                                        Available values: long, squared, standard (default = standard)'
     print '        -t, --timeout=<int>             Timeout value'
     print '                                        Available values: [0 .. INT_MAX] (default = 3600)'
+    print '        --tol                           Whether to print timeout labels (default=false)'
     print '        --tlabel=<string>               Timeout label (for scatter plots only)'
     print '        --tol-loc=<string>              Where to put the timeout label'
     print '                                        Available values: before, after (default = after)'
