@@ -50,6 +50,7 @@ def parse_options():
                                     'only=',
                                     'plot-type=',
                                     'replace=',
+                                    'fixed',
                                     'reverse',
                                     'save-to=',
                                     'shape=',
@@ -87,6 +88,7 @@ def parse_options():
 
     options['title'] = ""
     options['tol'] = False
+    options['fixed'] = False
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
@@ -126,6 +128,8 @@ def parse_options():
             options['plot_type'] = str(arg)
         elif opt in ('-r', '--replace'):
             options['repls'] = json.loads(str(arg))
+        elif opt == '--fixed':
+            options['fixed'] = True
         elif opt == '--reverse':
             options['reverse'] = True
         elif opt == '--save-to':
@@ -208,6 +212,7 @@ def usage():
     print '                                        Available values: cactus or scatter (default = cactus)'
     print '        -r, --replace=<json-string>     List of name replacements'
     print '                                        Format: {"name1": "$nice_name1$", "name2": "$nice_name2$"} (default = none)'
+    print '        --fixed                         Use fixed order (no sorting)'
     print '        --reverse                       Use reversed sorting'
     print '        --save-to=<string>              Where result figure should be saved'
     print '                                        Default value: plot'
