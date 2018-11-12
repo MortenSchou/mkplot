@@ -78,7 +78,7 @@ class Plot():
 
         plt.rc('text', usetex=options['usetex'])
         plt.rc('font', **self.f_props)
-        plt.rcParams.update({'axes.labelsize': '35', 'xtick.major.pad':10})
+        plt.rcParams.update({'axes.labelsize': options['axis_label_sz'], 'xtick.major.pad':10})
 
         # figure properties
         nof_subplots = 1
@@ -117,4 +117,4 @@ class Plot():
         if options['xkcd']:
             plt.xkcd()
 
-        plt.title(options['title'], fontsize=35)
+        plt.title(options['title'], fontsize=options['title_sz'], y=1.05)

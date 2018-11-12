@@ -38,6 +38,8 @@ def parse_options():
                                     'config=',
                                     'font=',
                                     'font-sz=',
+                                    'title-sz=',
+                                    'axis-label-sz=',
                                     'no-grid',
                                     'help',
                                     'join-key=',
@@ -89,6 +91,8 @@ def parse_options():
     options['title'] = ""
     options['tol'] = False
     options['fixed'] = False
+    options['title_sz'] = 35
+    options['axis_label_sz'] = 35
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
@@ -103,6 +107,10 @@ def parse_options():
             options['font'] = str(arg)
         elif opt == '--font-sz':
             options['font_sz'] = float(arg)
+        elif opt == '--title-sz':
+            options['title_sz'] = float(arg)
+        elif opt == '--axis-label-sz':
+            options['axis_label_sz'] = float(arg)
         elif opt in ('-h', '--help'):
             usage()
             sys.exit(0)
@@ -192,6 +200,10 @@ def usage():
     print '                                        Available values: cmr, helvetica, palatino, times (default = times)'
     print '        --font-sz=<int>                 Font size to use'
     print '                                        Available values: [0 .. INT_MAX] (default = 12)'
+    print '        --title-sz=<int>                Font size to use for title'
+    print '                                        Available values: [0 .. INT_MAX] (default = 35)'
+    print '        --axis-label-sz=<int>           Font size to use for axis labels'
+    print '                                        Available values: [0 .. INT_MAX] (default = 35)'
     print '        -h, --help                      Show this message'
     print '        --no-grid                       Do not show the grid'
     print '        -j, --join-key=<string-list>    Comma-separated list of keys to join all benchmarks per each tool'
