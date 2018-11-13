@@ -52,8 +52,7 @@ def parse_options():
                                     'only=',
                                     'plot-type=',
                                     'replace=',
-                                    'fixed',
-                                    'reverse',
+                                    'ordering=',
                                     'save-to=',
                                     'shape=',
                                     'timeout=',
@@ -93,6 +92,7 @@ def parse_options():
     options['fixed'] = False
     options['title_sz'] = 35
     options['axis_label_sz'] = 35
+    options['ordering'] = "sorted"
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
@@ -138,8 +138,8 @@ def parse_options():
             options['repls'] = json.loads(str(arg))
         elif opt == '--fixed':
             options['fixed'] = True
-        elif opt == '--reverse':
-            options['reverse'] = True
+        elif opt == '--ordering':
+            options['ordering'] = str(arg)
         elif opt == '--save-to':
             options['save_to'] = str(arg)
         elif opt == '--shape':
@@ -224,8 +224,8 @@ def usage():
     print '                                        Available values: cactus or scatter (default = cactus)'
     print '        -r, --replace=<json-string>     List of name replacements'
     print '                                        Format: {"name1": "$nice_name1$", "name2": "$nice_name2$"} (default = none)'
-    print '        --fixed                         Use fixed order (no sorting)'
-    print '        --reverse                       Use reversed sorting'
+    print '        --ordering=<string>             Define how to ordering for scatter plot (cactus?)'
+    print '                                        Values: sorted, reverse, fixed (default = sorted)'
     print '        --save-to=<string>              Where result figure should be saved'
     print '                                        Default value: plot'
     print '        --shape=<string>                Shape of the plot'

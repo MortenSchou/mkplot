@@ -262,7 +262,7 @@ def load_csv(names, stats, options):
         data = [d for i, d in enumerate(data) if names_orig[i] in options['only']]
 
     # use given order, do not sort
-    if (options['fixed']):
+    if (options['ordering'] == "fixed"):
         return data
 
-    return sorted(data, key=lambda x: (x[2], -x[3]), reverse=not options['reverse'])
+    return sorted(data, key=lambda x: (x[2], -x[3]), reverse=not (options['ordering'] == "reverse"))
