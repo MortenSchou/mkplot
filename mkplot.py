@@ -70,7 +70,8 @@ def parse_options():
                                     'ylog',
                                     'ymin=',
                                     'ymax=',
-                                    'markevery='
+                                    'markevery=',
+                                    'scatter-color='
                                     ])
     except getopt.GetoptError, err:
         sys.stderr.write(str(err).capitalize())
@@ -179,6 +180,8 @@ def parse_options():
             options['y_max'] = float(arg)
         elif opt == '--markevery':
             options['markevery'] = int(arg)
+        elif opt == '--scatter-color':
+            options['scatter-color'] = str(arg)
         else:
             print opt, arg
             assert False, 'Unhandled option: {0} {1}'.format(opt, arg)
@@ -257,7 +260,10 @@ def usage():
     print '                                        Available values: [0 .. INT_MAX] (default = none)'
     print '        --ymin=<int>                    Y axis starts from this value'
     print '                                        Available values: [0 .. INT_MAX] (default = 0)'
-
+    print '        --markevery=<int>               Marker every X points'
+    print '                                        Available values: [0 .. INT_MAX] (default = read from json)'
+    print '        --scatter-color=<string>        Color of points in scatter plot'
+    print '                                        Available values: [] (default = read from json)'
 
 #
 #==============================================================================
