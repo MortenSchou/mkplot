@@ -69,7 +69,9 @@ def parse_options():
                                     'ylabel=',
                                     'ylog',
                                     'ymin=',
-                                    'ymax='])
+                                    'ymax=',
+                                    'markevery='
+                                    ])
     except getopt.GetoptError, err:
         sys.stderr.write(str(err).capitalize())
         usage()
@@ -93,6 +95,7 @@ def parse_options():
     options['title_sz'] = 35
     options['axis_label_sz'] = 35
     options['ordering'] = "sorted"
+    options['markevery'] = -1
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
@@ -174,6 +177,8 @@ def parse_options():
             options['y_min'] = float(arg)
         elif opt == '--ymax':
             options['y_max'] = float(arg)
+        elif opt == '--markevery':
+            options['markevery'] = int(arg)
         else:
             print opt, arg
             assert False, 'Unhandled option: {0} {1}'.format(opt, arg)
