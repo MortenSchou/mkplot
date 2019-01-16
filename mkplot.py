@@ -237,7 +237,7 @@ def usage():
     print '        --save-to=<string>              Where result figure should be saved'
     print '                                        Default value: plot'
     print '        --shape=<string>                Shape of the plot'
-    print '                                        Available values: long, squared, standard (default = standard)'
+    print '                                        Available values: longX (in which X is a multiplying coeff for widith, def=1.2), long, squared, standard (default = standard)'
     print '        -t, --timeout=<int>             Timeout value'
     print '                                        Available values: [0 .. INT_MAX] (default = 3600)'
     print '        --tol                           Whether to print timeout labels (default=false)'
