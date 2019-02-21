@@ -51,6 +51,10 @@ class Cactus(Plot, object):
         # setting line styles
         for i, l in enumerate(lines):
             plt.setp(l, **self.linestyles[i % len(self.linestyles)])
+        # manually setting markevery parameter
+        if self.markevery > -1:
+          for i, l in enumerate(lines):
+            plt.setp(l, markevery=self.markevery)
 
         # turning the grid on
         if not self.no_grid:

@@ -65,6 +65,9 @@ class Scatter(Plot, object):
         with open(self.def_path, 'r') as fp:
             self.marker_style = json.load(fp)['scatter_style']
 
+        if "scatter-color" in options.keys():
+          self.marker_style['color'] = options["scatter-color"]
+
     def create(self, data):
         """
             Does the plotting.
@@ -111,7 +114,7 @@ class Scatter(Plot, object):
                 rotation=90)
 
         # scatter
-        plt.scatter(data[0][1], data[1][1], c=self.marker_style['color'],
+        plt.scatter(data[0][1], data[1][1],c=self.marker_style['color'],
             marker=self.marker_style['marker'], s=self.marker_style['size'],
             alpha=self.alpha, zorder=5)
 
