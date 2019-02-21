@@ -56,7 +56,7 @@ def parse_options():
                                     'save-to=',
                                     'shape=',
                                     'timeout=',
-                                    'tol=',
+                                    'tol',
                                     'tlabel=',
                                     'tol-loc=',
                                     'transparent',
