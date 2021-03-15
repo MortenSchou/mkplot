@@ -52,6 +52,10 @@ class Cactus(Plot, object):
         # setting line styles
         for i, l in enumerate(lines):
             plt.setp(l, **self.linestyles[i % len(self.linestyles)])
+        # manually setting markevery parameter
+        if self.markevery > -1:
+          for i, l in enumerate(lines):
+            plt.setp(l, markevery=self.markevery)
 
         # turning the grid on
         if not self.no_grid:
@@ -64,10 +68,11 @@ class Cactus(Plot, object):
         # axes labels
         if self.x_label:
             plt.xlabel(self.x_label)
-        else:
-            plt.xlabel('instances')
+        # removing xlabel in cactus
+        # else:
+        #     plt.xlabel('instances')
 
-        if self.y_label:
+        if self.y_label or self.y_label == "":
             plt.ylabel(self.y_label)
         else:
             plt.ylabel('CPU time (s)')

@@ -33,12 +33,15 @@ def parse_options():
     try:
         opts, args = getopt.getopt(sys.argv[1:],
                                    'a:b:c:df:hj:k:lp:r:t:',
-                                   ['alpha=',
+                                   ['title=',
+                                    'alpha=',
                                     'backend=',
                                     'config=',
                                     'dry-run',
                                     'font=',
                                     'font-sz=',
+                                    'title-sz=',
+                                    'axis-label-sz=',
                                     'no-grid',
                                     'help',
                                     'join-key=',
@@ -51,10 +54,11 @@ def parse_options():
                                     'only=',
                                     'plot-type=',
                                     'replace=',
-                                    'reverse',
+                                    'ordering=',
                                     'save-to=',
                                     'shape=',
                                     'timeout=',
+                                    'tol',
                                     'tlabel=',
                                     'tol-loc=',
                                     'transparent',
@@ -67,7 +71,10 @@ def parse_options():
                                     'ylabel=',
                                     'ylog',
                                     'ymin=',
-                                    'ymax='])
+                                    'ymax=',
+                                    'markevery=',
+                                    'scatter-color='
+                                    ])
     except getopt.GetoptError as err:
         sys.stderr.write(str(err).capitalize() + '\n')
         usage()
@@ -85,9 +92,18 @@ def parse_options():
         options = json.load(fp)['settings']
         options['def_path'] = def_path
 
+    options['title'] = ""
+    options['tol'] = False
+    options['fixed'] = False
+    options['title_sz'] = 35
+    options['axis_label_sz'] = 35
+    options['ordering'] = "sorted"
+    options['markevery'] = -1
     # parsing command-line options
     for opt, arg in opts:
-        if opt in ('-a', '--alpha'):
+        if opt == '--title':
+            options['title'] = str(arg)
+        elif opt in ('-a', '--alpha'):
             options['alpha'] = float(arg)
         elif opt in ('-b', '--backend'):
             options['backend'] = str(arg)
@@ -99,6 +115,10 @@ def parse_options():
             options['font'] = str(arg)
         elif opt == '--font-sz':
             options['font_sz'] = float(arg)
+        elif opt == '--title-sz':
+            options['title_sz'] = float(arg)
+        elif opt == '--axis-label-sz':
+            options['axis_label_sz'] = float(arg)
         elif opt in ('-h', '--help'):
             usage()
             sys.exit(0)
@@ -124,14 +144,18 @@ def parse_options():
             options['plot_type'] = str(arg)
         elif opt in ('-r', '--replace'):
             options['repls'] = json.loads(str(arg))
-        elif opt == '--reverse':
-            options['reverse'] = True
+        elif opt == '--fixed':
+            options['fixed'] = True
+        elif opt == '--ordering':
+            options['ordering'] = str(arg)
         elif opt == '--save-to':
             options['save_to'] = str(arg)
         elif opt == '--shape':
             options['shape'] = str(arg)
         elif opt in ('-t', '--timeout'):
             options['timeout'] = float(arg)
+        elif opt == '--tol':
+            options['tol'] = True
         elif opt == '--tlabel':
             options['t_label'] = str(arg)
         elif opt == '--tol-loc':
@@ -158,6 +182,10 @@ def parse_options():
             options['y_min'] = float(arg)
         elif opt == '--ymax':
             options['y_max'] = float(arg)
+        elif opt == '--markevery':
+            options['markevery'] = int(arg)
+        elif opt == '--scatter-color':
+            options['scatter-color'] = str(arg)
         else:
             assert False, 'Unhandled option: {0} {1}'.format(opt, arg)
 
@@ -173,6 +201,7 @@ def usage():
 
     print('Usage:', os.path.basename(sys.argv[0]), ' [options] stat-files')
     print('Options:')
+    print '        --title=<string>                Title to diagram (default="")'
     print('        -a, --alpha=<float>             Alpha value (only for scatter plots)')
     print('                                        Available values: [0 .. 1] (default = 0.3)')
     print('        -b, --backend=<string>          Backend to use')
@@ -183,6 +212,10 @@ def usage():
     print('                                        Available values: cmr, helvetica, palatino, times (default = times)')
     print('        --font-sz=<int>                 Font size to use')
     print('                                        Available values: [0 .. INT_MAX] (default = 12)')
+    print '        --title-sz=<int>                Font size to use for title'
+    print '                                        Available values: [0 .. INT_MAX] (default = 35)'
+    print '        --axis-label-sz=<int>           Font size to use for axis labels'
+    print '                                        Available values: [0 .. INT_MAX] (default = 35)'
     print('        -h, --help                      Show this message')
     print('        --no-grid                       Do not show the grid')
     print('        -j, --join-key=<string-list>    Comma-separated list of keys to join all benchmarks per each tool')
@@ -203,6 +236,8 @@ def usage():
     print('                                        Available values: cactus or scatter (default = cactus)')
     print('        -r, --replace=<json-string>     List of name replacements')
     print('                                        Format: {"name1": "$nice_name1$", "name2": "$nice_name2$"} (default = none)')
+    print '        --ordering=<string>             Define how to ordering for scatter plot (cactus?)'
+    print '                                        Values: sorted, reverse, fixed (default = sorted)'
     print('        --reverse                       Use reversed sorting')
     print('        --save-to=<string>              Where result figure should be saved')
     print('                                        Default value: plot')
@@ -210,6 +245,7 @@ def usage():
     print('                                        Available values: long, squared, standard (default = standard)')
     print('        -t, --timeout=<int>             Timeout value')
     print('                                        Available values: [0 .. INT_MAX] (default = 3600)')
+    print '        --tol                           Whether to print timeout labels (default=false)'
     print('        --tlabel=<string>               Timeout label (for scatter plots only)')
     print('        --tol-loc=<string>              Where to put the timeout label')
     print('                                        Available values: before, after (default = after)')
@@ -229,7 +265,10 @@ def usage():
     print('                                        Available values: [0 .. INT_MAX] (default = none)')
     print('        --ymin=<int>                    Y axis starts from this value')
     print('                                        Available values: [0 .. INT_MAX] (default = 0)')
-
+    print '        --markevery=<int>               Marker every X points'
+    print '                                        Available values: [0 .. INT_MAX] (default = read from json)'
+    print '        --scatter-color=<string>        Color of points in scatter plot'
+    print '                                        Available values: [] (default = read from json)'
 
 #
 #==============================================================================

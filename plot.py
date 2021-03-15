@@ -34,6 +34,7 @@ class Plot():
         self.transparent = options['transparent']
 
         self.timeout = options['timeout']
+        self.tol = options['tol']
         self.t_label = options['t_label']
         self.tlb_loc = options['tlb_loc']
 
@@ -57,6 +58,8 @@ class Plot():
         self.grid_style = options['grid_style']
         self.grid_width = options['grid_width']
 
+        self.markevery = options['markevery']
+
         # where to save
         self.save_to = '{0}.{1}'.format(os.path.splitext(self.save_to)[0], self.backend)
 
@@ -77,6 +80,7 @@ class Plot():
 
         plt.rc('text', usetex=options['usetex'])
         plt.rc('font', **self.f_props)
+        plt.rcParams.update({'axes.labelsize': options['axis_label_sz'], 'xtick.major.pad':10})
 
         # figure properties
         nof_subplots = 1
@@ -112,3 +116,5 @@ class Plot():
         # funny mode
         if options['xkcd']:
             plt.xkcd()
+
+        plt.title(options['title'], fontsize=options['title_sz'], y=1.05)

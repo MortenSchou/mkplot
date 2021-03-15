@@ -62,9 +62,13 @@ class Scatter(Plot, object):
         # setting timeout-line label
         if not self.t_label:
             self.t_label = '{0} sec. timeout'.format(int(self.timeout))
+        self.t_label = ""
 
         with open(self.def_path, 'r') as fp:
             self.marker_style = json.load(fp)['scatter_style']
+
+        if "scatter-color" in options.keys():
+          self.marker_style['color'] = options["scatter-color"]
 
     def create(self, data):
         """
@@ -88,10 +92,11 @@ class Scatter(Plot, object):
         plt.ylim([self.y_min, self.y_max])
 
         # timeout lines
-        plt.axvline(self.timeout, linewidth=1, color='red', ls=':',
-            label=str(self.timeout), zorder=3)
-        plt.axhline(self.timeout, linewidth=1, color='red', ls=':',
-            label=str(self.timeout), zorder=3)
+        if self.tol:
+            plt.axvline(self.timeout, linewidth=1, color='red', ls=':',
+                label=str(self.timeout), zorder=3)
+            plt.axhline(self.timeout, linewidth=1, color='red', ls=':',
+                label=str(self.timeout), zorder=3)
 
         if self.tlb_loc == 'after':
             plt.text(2 * self.x_min, self.timeout + self.x_max / 40,
@@ -111,7 +116,7 @@ class Scatter(Plot, object):
                 rotation=90)
 
         # scatter
-        plt.scatter(data[0][1], data[1][1], c=self.marker_style['color'],
+        plt.scatter(data[0][1], data[1][1],c=self.marker_style['color'],
             marker=self.marker_style['marker'], s=self.marker_style['size'],
             alpha=self.alpha, zorder=5)
 
