@@ -81,6 +81,10 @@ class Plot():
         plt.rc('text', usetex=options['usetex'])
         plt.rc('font', **self.f_props)
         plt.rcParams.update({'axes.labelsize': options['axis_label_sz'], 'xtick.major.pad':10})
+        if (not options['usetex']): # Set fallback math font when not using LaTeX.
+            plt.rcParams.update({'mathtext.fontset': 'cm',
+                                 'axes.unicode_minus': False, # Use ASCII minus
+                                })
 
         # figure properties
         nof_subplots = 1
