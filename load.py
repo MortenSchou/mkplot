@@ -265,6 +265,4 @@ def load_csv(names, stats, options):
     # use given order, do not sort
     if (options['ordering'] == "fixed"):
         return data
-    return sorted(data, key=lambda x: x[2] + len(x[1]) / sum(x[1]), reverse=not options['reverse'])
-
-    return sorted(data, key=lambda x: (x[2], -x[3]), reverse=not (options['ordering'] == "reverse"))
+    return sorted(data, key=lambda x: x[2] + len(x[1]) / sum(x[1]), reverse=not (options['ordering'] == "reverse"))
