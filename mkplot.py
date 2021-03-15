@@ -94,9 +94,8 @@ def parse_options():
 
     options['title'] = ""
     options['tol'] = False
-    options['fixed'] = False
-    options['title_sz'] = 35
-    options['axis_label_sz'] = 35
+    options['title_sz'] = 20.0
+    options['axis_label_sz'] = 12.0
     options['ordering'] = "sorted"
     options['markevery'] = -1
     # parsing command-line options
@@ -144,8 +143,6 @@ def parse_options():
             options['plot_type'] = str(arg)
         elif opt in ('-r', '--replace'):
             options['repls'] = json.loads(str(arg))
-        elif opt == '--fixed':
-            options['fixed'] = True
         elif opt == '--ordering':
             options['ordering'] = str(arg)
         elif opt == '--save-to':
@@ -213,9 +210,9 @@ def usage():
     print('        --font-sz=<int>                 Font size to use')
     print('                                        Available values: [0 .. INT_MAX] (default = 12)')
     print('        --title-sz=<int>                Font size to use for title')
-    print('                                        Available values: [0 .. INT_MAX] (default = 35)')
+    print('                                        Available values: [0 .. INT_MAX] (default = 20)')
     print('        --axis-label-sz=<int>           Font size to use for axis labels')
-    print('                                        Available values: [0 .. INT_MAX] (default = 35)')
+    print('                                        Available values: [0 .. INT_MAX] (default = 12)')
     print('        -h, --help                      Show this message')
     print('        --no-grid                       Do not show the grid')
     print('        -j, --join-key=<string-list>    Comma-separated list of keys to join all benchmarks per each tool')
@@ -238,7 +235,6 @@ def usage():
     print('                                        Format: {"name1": "$nice_name1$", "name2": "$nice_name2$"} (default = none)')
     print('        --ordering=<string>             Define how to ordering for scatter plot (cactus?)')
     print('                                        Values: sorted, reverse, fixed (default = sorted)')
-    print('        --reverse                       Use reversed sorting')
     print('        --save-to=<string>              Where result figure should be saved')
     print('                                        Default value: plot')
     print('        --shape=<string>                Shape of the plot')

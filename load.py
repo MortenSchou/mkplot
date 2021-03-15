@@ -154,10 +154,10 @@ def load_json(stat_arr, options):
         data = [(options['repls'][n], v, s, l) if n in options['repls'] else (n, v, s, l) for n, v, s, l in data]
 
     # use given order, do not sort
-    if (options['fixed']):
+    if (options['ordering'] == "fixed"):
         return data
 
-    return sorted(data, key=lambda x: x[2] + len(x[1]) / sum(x[1]), reverse=not options['reverse'])
+    return sorted(data, key=lambda x: x[2] + len(x[1]) / sum(x[1]), reverse=not (options['ordering'] == "reverse"))
 
 
 #
