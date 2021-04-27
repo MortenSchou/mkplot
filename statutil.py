@@ -28,7 +28,7 @@ class Stat:
         Simple statistical data class.
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, legend=None, filename=None):
         """
             Constructor.
         """
@@ -37,12 +37,15 @@ class Stat:
             self.insts_own = []
             self.preamble = {}
             self.data = {}
+            self.label = ''
         elif type(filename) is list:
             print( 'in case of several files use "StatArray" class', file=sys.stderr)
         else:
-            self.read(filename)
+            self.read(legend, filename)
+    def _set_insts_own(self):
+        self.insts_own = sorted(list(set(self.data.keys())))
 
-    def read(self, filename=None):
+    def read(self, legend, filename=None):
         """
             Reads a file into a Stat object.
         """
@@ -52,7 +55,7 @@ class Stat:
             return
 
         with open(filename, 'r') as fp:
-            print('reading {0}'.format(filename), file=sys.stderr)
+            #print('reading {0}'.format(filename), file=sys.stderr)
             try:
                 data_full = json.load(fp)
             except:
@@ -61,8 +64,12 @@ class Stat:
             self.data = data_full['stats']
             self.preamble = data_full['preamble']
             self.preamble['origin'] = filename
-
-        self.insts_own = sorted(list(set(self.data.keys())))
+            if type(legend) is list:
+                self.label = ' '.join([self.preamble[k] for k in legend])
+            else:
+                self.label = self.preamble[legend]
+            self.label = self.label.strip()
+        self._set_insts_own()
 
     def write(self, to=None):
         """
@@ -108,6 +115,40 @@ class Stat:
 
         self.write()
 
+    def filterinsts(self,filters=None):
+        def filter_inst(d):
+            def filter_stuff(filter_key, filter_value):
+                if filter_key not in d:
+                    return False
+                if isinstance(filter_value, list):
+                    return (d[filter_key] in filter_value)
+                return d[filter_key] == filter_value
+            for filter_key, filter_val in filters.items():
+                if not filter_stuff(filter_key, filter_val):
+                    return False
+            return True
+        if filters:
+            self.data = {inst: val for inst,val in self.data.items() if filter_inst(val)}
+            self._set_insts_own()
+
+    def get_data(self, options, min_value, max_value):
+        vals = []
+        num_solved = 0
+        last_val = -1
+        for inst in self.insts_own:  # insts_own are sorted
+            val = self.data[inst][options['key']] if options['key'] in self.data[inst] else max_value
+            if self.data[inst]['status'] == True:
+                if val > last_val:
+                    last_val = val
+                if val >= float(options['timeout']):
+                    val = max_value
+                elif val <= min_value:
+                    val = min_value
+                num_solved += 1
+            else:
+                val = max_value
+            vals.append(val)
+        return (self.label, vals, num_solved, last_val)
 
     def list(self, crit=None):
         """
@@ -138,7 +179,7 @@ class StatArray:
         Contains statistical data for several files.
     """
 
-    def __init__(self, files=None):
+    def __init__(self, legend, files=None):
         """
             Constructor.
         """
@@ -147,10 +188,10 @@ class StatArray:
             self.inst_full = []
             self.stat_objs = []
         elif type(files) is list:
-            self.read(files)
+            self.read(legend, files)
         else:
             print('in case of just one file use "Stat" class', file=sys.stderr)
-            self.read([files])
+            self.read(legend, [files])
 
     def __getitem__(self, key):
         if key < len(self.stat_objs):
@@ -163,7 +204,7 @@ class StatArray:
         for stat_obj in self.stat_objs:
             yield stat_obj
 
-    def read(self, files=None):
+    def read(self, legend, files=None):
         """
             Reads several files into a StatArray object.
         """
@@ -174,8 +215,10 @@ class StatArray:
 
         self.stat_objs = []
         for f in files:
-            self.stat_objs.append(Stat(f))
+            self.stat_objs.append(Stat(legend, f))
+        self._set_inst_full()
 
+    def _set_inst_full(self):
         inst_set = set()
         for stat_obj in self.stat_objs:
             inst_set = inst_set.union(set(stat_obj.insts_own))
@@ -219,19 +262,15 @@ class StatArray:
                 clusters[key].data.update(stat_obj.data)
 
                 clusters[key].preamble['benchmark'].append(stat_obj.preamble['benchmark'])
-                clusters[key].preamble['runsolver_args'].append(stat_obj.preamble['runsolver_args'])
+                clusters[key].preamble['program'].append(stat_obj.preamble['program'])
             else:
                 # add new cluster
                 clusters[key] = stat_obj
                 clusters[key].preamble['benchmark'] = [clusters[key].preamble['benchmark']]
-                clusters[key].preamble['runsolver_args'] = [clusters[key].preamble['runsolver_args']]
+                clusters[key].preamble['program'] = [clusters[key].preamble['program']]
 
         self.stat_objs = [cl for cl in clusters.values()]
-
-        inst_set = set()
-        for stat_obj in self.stat_objs:
-            inst_set = inst_set.union(set(stat_obj.insts_own))
-        self.inst_full = sorted(list(inst_set))
+        self._set_inst_full()
 
     def unclaster(self):
         """
@@ -240,33 +279,87 @@ class StatArray:
 
         print('unclaster() method is not implemented yet', file=sys.stderr)
 
-    def make_vbs(self, addit_key=None):
+    def filterinsts(self,filters=None):
         """
-            Makes vbs using the status, rtime and additional key as the measurement.
-            NOTE: the use of addit_key is not implemented yet.
+            Filters instances from all stat_objs based on the filters parameter.
         """
+        for stat_obj in self.stat_objs:
+            stat_obj.filterinsts(filters)
+        self._set_inst_full()
+
+    def make_vbs(self, vbs_name, tools, key):
+        """
+            Makes vbs with label vbs_name from tools using the status to filter, and key as the measurement.
+        """
+        vbs_stat_objs = self.stat_objs if tools == 'all' else [stat_obj for stat_obj in self.stat_objs if stat_obj.label in tools]
 
         vbs = Stat()
-        vbs.insts_own = self.inst_full
+        vbs.label = vbs_name
 
-        vbs.preamble = self.stat_objs[0].preamble
-        vbs.preamble['program'] = 'vbs'
+        # Not sure if this part is used...
+        vbs.preamble = vbs_stat_objs[0].preamble
+        vbs.preamble['program'] = 'best of ' + ','.join(tools)
         vbs.preamble['prog_args'] = ''
-        vbs.preamble['origin'] = [obj.preamble['origin'] for obj in self.stat_objs]
+        vbs.preamble['origin'] = [obj.preamble['origin'] for obj in vbs_stat_objs]
 
-        for inst in self.inst_full:
+        inst_set = set()
+        for stat_obj in vbs_stat_objs:
+            inst_set = inst_set.union(set(stat_obj.insts_own))
+        vbs.insts_own = sorted(list(inst_set))
+
+        for inst in vbs.insts_own:
             alts = []
-            for stat_obj in self.stat_objs:
+            for stat_obj in vbs_stat_objs:
                 if inst in stat_obj.data and stat_obj.data[inst]['status'] == True:
                     alts.append(stat_obj.data[inst])
-
             if alts:
-                vbs.data[inst] = min(alts, key=lambda x: x['rtime'])
+                vbs.data[inst] = min(alts, key=lambda x: x[key] if key in x else float('inf'))
             else:
                 # all fail; choose any:
                 vbs.data[inst] = self.stat_objs[0].data[inst]
 
         self.stat_objs.append(vbs)
+    
+    def create_ratio(self, ratio_name, tools, key, timeout, max_value, weird_ratio = False):
+        """
+            Make a ratio stat_obj with label ratio_name, as the ratio tools[0] / tools[1]. 
+        """
+        ratio_stat_objs = [stat_obj for stat_obj in self.stat_objs if stat_obj.label in tools]
+
+        ratio = Stat()
+        ratio.label = ratio_name
+        inst_set = set()
+        for stat_obj in ratio_stat_objs:
+            inst_set = inst_set.union(set(stat_obj.insts_own))
+        insts = sorted(list(inst_set))
+
+        def get_inst_val(inst, stat_obj):
+            if inst in stat_obj.data and stat_obj.data[inst]['status'] == True and stat_obj.data[inst][key] < timeout:
+                return stat_obj.data[inst][key]
+            else:
+                return timeout
+        vals = []
+        num_solved = 0
+        last_val = float('-inf') if weird_ratio else -1
+        for inst in insts:
+            a = get_inst_val(inst, ratio_stat_objs[0])
+            b = get_inst_val(inst, ratio_stat_objs[1])
+            if a < timeout and b < timeout:
+                val = (a / b - 1 if a >= b else 1 - b / a) if weird_ratio else a / b
+                vals.append(val)
+                #if val < 1:
+                #    print(ratio_stat_objs[0].data[inst]['cegar-iterations'])
+                if last_val < val:
+                    last_val = val
+            elif a < timeout:
+                vals.append(float('-inf') if weird_ratio else 0)
+            elif b < timeout:
+                vals.append(max_value)
+                last_val = max_value
+            else:
+                continue
+            num_solved += 1
+        return (ratio_name, vals, num_solved, last_val)
 
     def compare(self, cmp_key=None):
         """

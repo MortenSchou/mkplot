@@ -95,8 +95,8 @@ class Cactus(Plot, object):
         if float(mpl_version[:3]) < 1.5:
             ax.set_xticklabels(ax.get_xticks(), self.f_props)
             ax.set_yticklabels(ax.get_yticks(), self.f_props)
-
-        strFormatter = plt.FormatStrFormatter('%d')
+        
+        strFormatter = plt.FuncFormatter(lambda x, p: format(int(x), ',')) if self.use_thousand_separator else plt.FormatStrFormatter('%d')
         logFormatter = plt.LogFormatterMathtext(base=10)
         ax.xaxis.set_major_formatter(strFormatter if not self.x_log else logFormatter)
         ax.yaxis.set_major_formatter(strFormatter if not self.y_log else logFormatter)

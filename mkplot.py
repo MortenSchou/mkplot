@@ -38,6 +38,7 @@ def parse_options():
                                     'backend=',
                                     'config=',
                                     'dry-run',
+                                    'filter=',
                                     'font=',
                                     'font-sz=',
                                     'title-sz=',
@@ -54,6 +55,7 @@ def parse_options():
                                     'only=',
                                     'plot-type=',
                                     'replace=',
+                                    'ratio=',
                                     'ordering=',
                                     'save-to=',
                                     'shape=',
@@ -63,6 +65,7 @@ def parse_options():
                                     'tol-loc=',
                                     'transparent',
                                     'vbs=',
+                                    'use_tick_sep',
                                     'xkcd',
                                     'xlabel=',
                                     'xlog',
@@ -98,6 +101,9 @@ def parse_options():
     options['axis_label_sz'] = 12.0
     options['ordering'] = "sorted"
     options['markevery'] = -1
+    options['filter'] = False
+    options['ratio'] = None
+    options['use_tick_sep'] = False
     # parsing command-line options
     for opt, arg in opts:
         if opt == '--title':
@@ -110,6 +116,8 @@ def parse_options():
             pass  # already processed
         elif opt in ('-d', '--dry-run'):
             options['dry_run'] = True
+        elif opt == '--filter':
+            options['filter'] = json.loads(str(arg))
         elif opt in ('-f', '--font'):
             options['font'] = str(arg)
         elif opt == '--font-sz':
@@ -143,6 +151,8 @@ def parse_options():
             options['plot_type'] = str(arg)
         elif opt in ('-r', '--replace'):
             options['repls'] = json.loads(str(arg))
+        elif opt == '--ratio':
+            options['ratio'] = json.loads(str(arg))
         elif opt == '--ordering':
             options['ordering'] = str(arg)
         elif opt == '--save-to':
@@ -161,6 +171,8 @@ def parse_options():
             options['transparent'] = True
         elif opt == '--vbs':
             options['vbs'] = json.loads(str(arg))
+        elif opt == '--use_tick_sep':
+            options['use_tick_sep'] = True
         elif opt == '--xkcd':
             options['xkcd'] = True
         elif opt == '--xlabel':
@@ -205,6 +217,7 @@ def usage():
     print('                                        Available values: pdf, pgf, png, ps, svg (default = pdf)')
     print('        -c, --config=<string>           Path to the default configuration file (default = $MKPLOT/defaults.json)')
     print('        -d, --dry-run                   Do not create a plot but instead show the tools sorted in the terminal')
+    print('        --filter=<json-string>          Only include instances with key=value. Format: {"key": value}. (default = none)')
     print('        -f, --font=<string>             Font to use')
     print('                                        Available values: cmr, helvetica, palatino, times (default = times)')
     print('        --font-sz=<int>                 Font size to use')
@@ -233,6 +246,8 @@ def usage():
     print('                                        Available values: cactus or scatter (default = cactus)')
     print('        -r, --replace=<json-string>     List of name replacements')
     print('                                        Format: {"name1": "$nice_name1$", "name2": "$nice_name2$"} (default = none)')
+    print('        --ratio=<json-string>           List of ratios to calculate: a/b per instance')
+    print('                                        Format: {"ratio-name1": ["solver-a", "solver-b"], "ratio-name2": ["solver-a", "solver-b"]} (default = none)')
     print('        --ordering=<string>             Define how to ordering for scatter plot (cactus?)')
     print('                                        Values: sorted, reverse, fixed (default = sorted)')
     print('        --save-to=<string>              Where result figure should be saved')
@@ -248,6 +263,7 @@ def usage():
     print('        --transparent                   Save the file in the transparent mode')
     print('        --vbs=<json-string>             List of VBSes')
     print('                                        Format: {"vbs1": ["tool1", "tool2"], "vbs2": "all"} (default = none)')
+    print('        --use_tick_sep                  Use thousand separator for x and y tick labels. E.g. 10,000 instead of 10000')
     print('        --xkcd                          Use xkcd-style sketch plotting')
     print('        --xlabel=<string>               X label')
     print('        --xlog                          Use logarithmic scale for X axis')
