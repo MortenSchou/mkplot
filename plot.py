@@ -46,6 +46,7 @@ class Plot():
         self.y_log   = options['y_log']
         self.y_max   = options['y_max']
         self.y_min   = options['y_min']
+        self.use_thousand_separator=options['use_tick_sep']
 
         self.lgd_loc     = options['lgd_loc']
         self.lgd_ncol    = options['lgd_ncol']
@@ -88,7 +89,7 @@ class Plot():
 
         # figure properties
         nof_subplots = 1
-        fig_width_pt = 252.0  # Get this from LaTeX using \showthe\columnwidth
+        fig_width_pt = 134  # Get this from LaTeX using \showthe\columnwidth
         inches_per_pt = 1.0 / 72.27                           # Convert pt to inch
         golden_mean = (np.sqrt(5) + 1.0) / 2.0                # Aesthetic ratio
         fig_width = fig_width_pt * inches_per_pt + 0.2        # width in inches
