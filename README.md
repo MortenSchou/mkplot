@@ -1,3 +1,5 @@
+About this fork: I have made some changes and updates that were usefull for me at the time, but I don't promise that it will work well in general. 
+
 # mkplot
 
 A Python script to create cactus and scatter plots based on the [matplotlib](http://matplotlib.org/) plotting library. The script makes use of only a tiny subset of what matplotlib can do.
