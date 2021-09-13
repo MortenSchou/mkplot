@@ -37,10 +37,11 @@
         {"c": "#666666", "marker": "", "ls": "-.", "lw": 1.4, "alpha": 0.8},
         {"c": "#e69d00", "marker": "", "ls": ":",  "lw": 1.4, "alpha": 0.7},
         {"c": "#ff0000", "marker": "", "ls": "--",  "lw": 1.4, "alpha": 0.7},
+        {"c": "green", "marker": "", "ls": "-",  "lw": 1.4, "alpha": 0.7},
         {"c": "#000080",   "marker": "", "ls": ":",  "lw": 0.9, "alpha": 0.8},
         {"c": "#800000",   "marker": "", "ls": "--",  "lw": 0.9, "alpha": 0.8},
         {"c": "black",   "marker": "", "ls": "-",  "lw": 0.9, "alpha": 0.8},
-        {"c": "green", "marker": "", "ls": "-",  "lw": 1.4, "alpha": 0.7}
+        {"c": "#e6009d", "marker": "", "ls": "-", "lw": 0.9, "alpha": 0.7}
     ],
     "cactus_linestyle_pdf":
     [

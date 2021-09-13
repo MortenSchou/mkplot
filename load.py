@@ -88,12 +88,15 @@ def load_json(stat_arr, options):
 
     if options['only']:
         data = [d for d in data if d[0] in options['only']]
-
+    
+    if (options['ordering'] == "only-list"):
+        data = sorted(data, key=lambda d: options['only'].index(d[0]))
+    
     if options['repls']:
         data = [(options['repls'][n], v, s, l) if n in options['repls'] else (n, v, s, l) for n, v, s, l in data]
 
     # use given order, do not sort
-    if (options['ordering'] == "fixed"):
+    if (options['ordering'] == "fixed" or options['ordering'] == "only-list"):
         return data
 
     return sorted(data, key=lambda x: x[2] + len(x[1]) / sum(x[1]), reverse=not (options['ordering'] == "reverse"))
