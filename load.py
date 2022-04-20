@@ -77,6 +77,12 @@ def load_json(stat_arr, options):
         for vbs_name, tools in options['vbs'].items():
             stat_arr.make_vbs(vbs_name, tools, options['key'])
     
+    if options['subtract']:
+        for stat_obj in stat_arr:
+            for inst in stat_obj.insts_own:
+                if options['subtract'] in stat_obj.data[inst] and options['key'] in stat_obj.data[inst]:
+                    stat_obj.data[inst][options['key']] -= stat_obj.data[inst][options['subtract']]
+
     # processing (normal) separate data
     for stat_obj in stat_arr:
         data.append(stat_obj.get_data(options, min_value, max_value))

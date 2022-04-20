@@ -59,6 +59,7 @@ def parse_options():
                                     'ordering=',
                                     'save-to=',
                                     'shape=',
+                                    'subtract=',
                                     'timeout=',
                                     'tol',
                                     'tlabel=',
@@ -103,6 +104,7 @@ def parse_options():
     options['markevery'] = -1
     options['filter'] = False
     options['ratio'] = None
+    options['subtract'] = None
     options['use_tick_sep'] = False
     # parsing command-line options
     for opt, arg in opts:
@@ -159,6 +161,8 @@ def parse_options():
             options['save_to'] = str(arg)
         elif opt == '--shape':
             options['shape'] = str(arg)
+        elif opt == '--subtract':
+            options['subtract'] = str(arg)
         elif opt in ('-t', '--timeout'):
             options['timeout'] = float(arg)
         elif opt == '--tol':
@@ -254,6 +258,7 @@ def usage():
     print('                                        Default value: plot')
     print('        --shape=<string>                Shape of the plot')
     print('                                        Available values: long, squared, standard (default = standard)')
+    print('        --subtract=<string>             Key to subtract from --key if both are present')
     print('        -t, --timeout=<int>             Timeout value')
     print('                                        Available values: [0 .. INT_MAX] (default = 3600)')
     print('        --tol                           Whether to print timeout labels (default=false)')
