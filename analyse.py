@@ -110,6 +110,18 @@ def usage():
 
 #
 #==============================================================================
+
+def is_unique(x):
+    if len(x) <= 1:
+        return True
+    y=[]
+    for e in x:
+        if isinstance(e,list):
+            y.append(tuple(e))
+        else:
+            y.append(e)
+    return len(set(y)) <= 1
+
 if __name__ == '__main__':
     options, files = parse_options()
 
@@ -142,6 +154,56 @@ if __name__ == '__main__':
     #     print(vals[int(len(vals)/2)])
     #     print()
 
+    # results = {}
+    # weights = {}
+    # stat_arr.compare('result')
+    # stat_arr.compare('weight')
+
+    for inst in stat_arr.inst_full:
+        results = []
+        inst_pre = inst.split('@')[0]
+        conf_i = inst.split('@')[1].split('-')[-1]
+        for stat_obj in stat_arr:
+            if inst in stat_obj.data:
+                cur_data = stat_obj.data[inst]
+            elif (inst_pre + '@v2-conf-' + conf_i) in stat_obj.data:
+                cur_data = stat_obj.data[inst_pre + '@v2-conf-' + conf_i]
+            elif (inst_pre + '@v2-latency-conf-' + conf_i) in stat_obj.data:
+                cur_data = stat_obj.data[inst_pre + '@v2-latency-conf-' + conf_i]
+            elif (inst_pre + '@v2-hops-latency-conf-' + conf_i) in stat_obj.data:
+                cur_data = stat_obj.data[inst_pre + '@v2-hops-latency-conf-' + conf_i]
+            else:
+                continue
+            if cur_data['status']:
+                results.append(cur_data['result'])
+        if not is_unique(results): # or not is_unique(weights):
+            print(inst)
+            print(results)
+            # print(weights)
+    # sys.exit(0)
+    for inst in stat_arr.inst_full:
+        weights = []
+        weight_dict = {}
+        max_weights = []
+        for stat_obj in stat_arr:
+            if inst in stat_obj.data and stat_obj.data[inst]['status'] == True and 'weight' in stat_obj.data[inst]:
+                if stat_obj.label.startswith("E2-T3"):
+                    max_weights.append(stat_obj.data[inst]['weight'])
+                else:
+                    weights.append(stat_obj.data[inst]['weight'])
+                if not isinstance(stat_obj.data[inst]['weight'], list):
+                    if stat_obj.data[inst]['weight'] in weight_dict:
+                        weight_dict[stat_obj.data[inst]['weight']].append(stat_obj.label)
+                    else:
+                        weight_dict[stat_obj.data[inst]['weight']] = [stat_obj.label]
+        if not is_unique(weights) or not is_unique(max_weights):
+            print(inst)
+            print(weights)
+            print(max_weights)
+            print(weight_dict)
+    # sys.exit(0)
+
+
     # count_inconclusive = 0
     # for inst in stat_arr.inst_full:
     #     if ('result' in stat_arr[0].data[inst] and stat_arr[0].data[inst]['result'] is None):
@@ -165,23 +227,77 @@ if __name__ == '__main__':
     # print(count)
     # exit(0)
 
-
     # for stat_obj in stat_arr:
-    #     count_inconclusive = 0
-    #     for inst in stat_obj.insts_own:
-    #         if 'result' in stat_obj.data[inst] and stat_obj.data[inst]['result'] is None and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
-    #             count_inconclusive += 1
-    #     print(stat_obj.label)
-    #     print(count_inconclusive, "inconclusive instances")
+    #     if stat_obj.label in ["config10-E2-T3-Whops", "config10-E2-T3-Wlatency"]:
+    #         tool_name = options['repls'][stat_obj.label] if "repls" in options and stat_obj.label in options['repls'] else stat_obj.label
+    #         print(tool_name)
+    #         for inst in stat_obj.insts_own:
+    #             if 'result' in stat_obj.data[inst] and stat_obj.data[inst]['result'] == True and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
+    #                 # result=True
+    #                 if 'weight' in stat_obj.data[inst] and stat_obj.data[inst]['weight'] is not None and stat_obj.data[inst]['weight'] != "infinite":
+    #                     print(stat_obj.data[inst])
+    #         print()
+    #         print()
 
-    # for stat_obj in stat_arr:
-    #     count_unanswered = 0
-    #     for inst in stat_obj.insts_own:
-    #         if stat_obj.data[inst]['status'] == False or options['key'] not in stat_obj.data[inst] or stat_obj.data[inst][options['key']] > max_val :
-    #             count_unanswered += 1
-    #     print(stat_obj.label)
-    #     print(count_unanswered, "unanswered instances")
-    # sys.exit(0)
+
+    # exit(0)
+
+
+    from tabulate import tabulate
+    stats = []
+    for stat_obj in stat_arr:
+        tool_name = options['repls'][stat_obj.label] if "repls" in options and stat_obj.label in options['repls'] else stat_obj.label
+        counts = {"name": tool_name, "true": 0, "false":0, "inconclusive":0, "time-out":0, "infinity": 0, "conclusive":0, "unanswered": 0, "all":0}
+        # count_inconclusive = 0
+        for inst in stat_obj.insts_own:
+            counts["all"] += 1
+            if 'result' in stat_obj.data[inst] and stat_obj.data[inst]['result'] == True and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
+                counts["true"] += 1
+                counts["conclusive"] += 1
+            if 'result' in stat_obj.data[inst] and stat_obj.data[inst]['result'] == False and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
+                counts["false"] += 1
+                counts["conclusive"] += 1
+            if 'result' in stat_obj.data[inst] and stat_obj.data[inst]['result'] is None and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
+                counts["inconclusive"] += 1
+            if options['key'] not in stat_obj.data[inst] or stat_obj.data[inst][options['key']] >= max_val:
+                counts["time-out"] += 1
+            if stat_obj.data[inst]['status'] == False or options['key'] not in stat_obj.data[inst] or stat_obj.data[inst][options['key']] >= max_val:
+                counts["unanswered"] += 1
+            if 'weight' in stat_obj.data[inst] and stat_obj.data[inst]['weight'] == "infinity" and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
+                counts["infinity"] += 1
+        stats.append(counts.values())
+        # print(count, "inconclusive instances")
+    print(tabulate(stats, headers=["name", "true", "false", "inconclusive", "time-out", "infinite trace (of true)", "true + false", "inconclusive + time-out", "all"]))
+    exit(0)
+
+    for stat_obj in stat_arr:
+        count_inconclusive = 0
+        for inst in stat_obj.insts_own:
+            if 'result' in stat_obj.data[inst] and stat_obj.data[inst]['result'] is None and options['key'] in stat_obj.data[inst] and stat_obj.data[inst][options['key']] < max_val:
+                count_inconclusive += 1
+        print(stat_obj.label)
+        print(count_inconclusive, "inconclusive instances")
+
+    for stat_obj in stat_arr:
+        count_unanswered = 0
+        for inst in stat_obj.insts_own:
+            if stat_obj.data[inst]['status'] == False or options['key'] not in stat_obj.data[inst] or stat_obj.data[inst][options['key']] > max_val :
+                count_unanswered += 1
+        print(stat_obj.label)
+        print(count_unanswered, "unanswered instances")
+    
+    for stat_obj in stat_arr:
+        count_infinities = 0
+        for inst in stat_obj.insts_own:
+            if 'weight' in stat_obj.data[inst] and stat_obj.data[inst]['weight'] == "infinity" :
+                count_infinities += 1
+        print(stat_obj.label)
+        print(count_infinities, "with trace_weight=infinite")
+    sys.exit(0)
+
+    # 
+    # -----------------
+    # 
 
     for stat_obj in stat_arr:
         print(stat_obj.label)
